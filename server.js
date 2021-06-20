@@ -14,10 +14,14 @@ app.engine('html', require('ejs').__express);
 app.use(bodyParser.urlencoded({extended:true}));
 
 app.use(express.static(path.resolve('node_modules')));
+app.use(express.static(path.resolve('public')));
 // 在使用了此会话中间件之后，会在请求对象上增加req.session属性
 app.use(session({
     resave: true, // 每次客户端请求到服务器都会保存session
     secret: 'zfpx', // 用来加密cookie
+    cookie: {
+        maxAge: 3600*1000 // 指定cookie的过期时间
+    },
     saveUninitialized: true // 保存未初始化的session
 }));
 // 切记中间件的使用要放在sessin的后面，因为此中间件是需要依赖session的 req.flash(type, msg) req.flash(type)

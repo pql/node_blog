@@ -1,5 +1,9 @@
 let express = require('express');
 let { User } = require('../model');
+let multer = require('multer');
+let upload = multer({
+    dest: 'public/uploads/'
+})
 let { checkLogin, checkNotLogin } = require('../auth');
 let router = express.Router();
 
@@ -42,8 +46,22 @@ router.get('/signup', checkNotLogin, function (req, res) {
         title: '注册'
     });
 });
-router.post('/signup', checkNotLogin, function (req, res) {
+// single 当表单里只有一个上传字段的话 avatar 是上传文件字段的name属性 req.file req.body
+router.post('/signup', upload.single('avatar'), checkNotLogin, function (req, res) {
     let user = req.body; // 请求体对象(username, password, email)
+    user.avatar = `/uploads/${req.file.filename}`;
+    /**
+     * req.file = {
+     *  filename: 'avatar', 上传字段的名称
+     *  originalname: '1.jpg', 上传前的原始文件名
+     *  encoding: '7bit'
+     *  mimetype: 'image/jpeg', 文件类型
+     *  destination 'public/uploads',  在服务器保存的目录
+     *  filename: '2933dde56e9008c431e84d91d5dba581', 在服务器保存的文件名
+     *  path: 'public/uploads/2933dde56e9008c431e84d91d5dba581', 在服务器保存的路径
+     *  size: 123432 文件体积大小
+     * }
+     */
     User.create(user, function (err, doc) {
         if (err) { // 表示注册失败
             // 消息的类型是error, 内容是 用户注册失败
@@ -55,6 +73,8 @@ router.post('/signup', checkNotLogin, function (req, res) {
         }
     });
 });
+
+
 // 用户退出登录
 router.get('/signout', checkLogin,  function (req, res) {
     req.session.user = null;
