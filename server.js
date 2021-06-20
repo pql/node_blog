@@ -1,5 +1,17 @@
 let express = require('express');
+let path = require('path');
+let bodyParser = require('body-parser');
 let app = express();
+// 设置模板引擎 html
+app.set('view engine', 'html');
+// 指定模板的存放根目录
+app.set('views', path.resolve('views'));
+// 指定对于html类型的模板使用ejs方法来进行渲染
+app.engine('html', require('ejs').__express);
+// 解析客户端提交过来的请求体，并转成对象赋给req.body
+app.use(bodyParser.urlencoded({extended:true}));
+
+app.use(express.static(path.resolve('node_modules')));
 let index = require('./routes/index');
 let user = require('./routes/user');
 let article = require('./routes/article')
